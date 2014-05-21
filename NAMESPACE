@@ -1,0 +1,40 @@
+#####################################
+##               Export            ##
+#####################################
+export(boyce,
+       enirg,
+       list.maps,
+       enirg.plot,
+       stdz.maps,
+       enirg.GUI,
+       import.egvs,
+       map.info,
+       enirg.predict,
+       classify.map)
+
+################################
+##          Classes           ##
+################################
+exportClasses("enirg")
+exportClasses("cbi")
+
+#####################################
+##               Import            ##
+#####################################
+import("raster")
+import("tcltk")
+
+importFrom("ade4", s.arrow)
+importFrom("fgui", gui, guiv, guiGetValue, guiSet, setListElements)
+importFrom("gdata", read.xls)
+importFrom("miniGUI", miniGUIscale ,makeWidgetCmd)
+importFrom("R.utils", hpaste)
+#importFrom("raster", raster, plot, contour)
+importFrom("sp", SpatialPointsDataFrame)
+importFrom("spgrass6", initGRASS, execGRASS, readRAST6, readVECT6, writeVECT6, writeRAST6, gmeta6)
+#importFrom("tcltk", tktoplevel, tclVar, tcl, tklabel,
+#           tkpack, tktitle, tkmenu, tkconfigure, tkadd,
+#           tkbutton, tkgrid, tkcurselection, tkdestroy,
+#           tkmessageBox, tkwm.title, tkscrollbar,
+#           tklistbox, tkbind)
+

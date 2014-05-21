@@ -1,0 +1,18 @@
+citHeader("To cite ENiRG (Ecological Niche in R-GRASS) in publications use:")
+
+citEntry(entry="Article",
+	title = "ENiRG: R-GRASS interface to efficiently characterize the ecological niche of species and predict habitat suitability",
+        author = personList(as.person("F. Canovas"),as.person("C. Magliozzi"),as.person("J.A. Palazon-Ferrando"),as.person("F. Mestre"),as.person("M. Gonzalez-Wanguemert")),
+	journal = "Ecography",
+  	year = "2014",
+#	volume = "xx",
+#	pages = "x-y",
+#	number = "z",         
+        textVersion = 
+        paste("Canovas, F., Magliozzi, C., Palazon-Ferrando, J.A., Mestre, F. and Gonzalez-Wanguemert, M. ",
+	       "(2014): ", 
+               "ENiRG: R-GRASS interface to efficiently characterize the ecological niche of species and predict habitat suitability. ",
+               "Ecography. ",
+               "(in review).",
+               sep="")
+         )

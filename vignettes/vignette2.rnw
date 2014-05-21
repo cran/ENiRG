@@ -1,0 +1,228 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{graphicx}
+\usepackage{Sweave}
+\usepackage{subfigure}
+\usepackage{float}
+\usepackage{hyperref}
+\usepackage[round]{natbib}
+\hypersetup{
+    unicode=false,
+    pdftitle={ENiRG},
+    pdfauthor={F. Canovas, C. Magliozzi, F. Mestre, J.A. Palazon \& M. Gonzalez-Wanguemert},
+    pdfsubject={ENiRG},
+    pdfcreator={},
+    pdfproducer={},
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    filecolor=magenta,
+    urlcolor=blue}
+
+\graphicspath{{.}{figures/}}
+\title{Ecological Niche in R-GRASS (ENiRG) using the GUI}
+\author{F. Canovas, C. Magliozzi, F. Mestre, \\ J.A. Palazon \& M. Gonzalez-Wanguemert}
+
+%\VignetteIndexEntry{Ecological Niche Factor Analysis (ENFA) using ENiRG GUI}
+
+\begin{document}
+
+\maketitle
+
+\section{ENFA analysis using the GUI}
+\subsection{Preparation}
+For the purposes of this example, honeybees data set will be used throughout the process \citep{Canovas2002,Canovas2008,Canovas2014}.
+
+Reading the library.
+\begin{Schunk}
+\begin{Sinput}
+> library(ENiRG)
+\end{Sinput}
+\end{Schunk}
+
+Starting the GUI.
+\begin{Schunk}
+\begin{Sinput}
+> enirg.GUI()
+\end{Sinput}
+\end{Schunk}
+
+\subsection{Data preparation}
+Data management can be accessed through the menu Data (Figure \ref{Figure:Data}).
+\begin{figure}[H]
+\begin{center}
+\includegraphics[keepaspectratio=true, width=6cm]{data.png}
+\end{center}
+\caption{Data management menu.}
+\label{Figure:Data}
+\end{figure}
+
+If the user do not have a GRASS session running (i.e., Unix-systems users who started R into a GRASS session), a new one should be started before running the GUI by using the menu ''New GRASS session \ldots '' (Figure \ref{Figure:GRASS}). NOTE: the path has to be entered manually. 
+\begin{figure}[H]
+\begin{center}
+\includegraphics[keepaspectratio=true, width=8cm]{newsession.png}
+\end{center}
+\caption{Starting a GRASS session.}
+\label{Figure:GRASS}
+\end{figure}
+
+Importing species occurrence data can be performed by accessing the functions through the menu ''Import from \ldots '' (Figure \ref{Figure:Data}). Two options are available: from a tab separated column text file or from an Excel file. In any case, the user should select the columns from the file, which represent position (longitude, latitude) and presence/abundance of the species (Figure \ref{Figure:Importfrom}). NOTE:  Users can find two example data files in text and Microsoft Excel format into ENiRG installation folder.  Users can search for the installation path of ENiRG through typing into the R terminal: \textit{system.file(package='ENiRG')}.
+\begin{figure}[H]
+\begin{center}
+\includegraphics[keepaspectratio=true, width=8cm]{text.png} \\
+\includegraphics[keepaspectratio=true, width=8cm]{excel.png}
+\end{center}
+\caption{ menu.}
+\label{Figure:Importfrom}
+\end{figure}
+
+The ecogeographical variables should be stored in raster format. Almost all relevant formats can be used (check  \href{http://www.gdal.org/formats_list.html}{GDAL library} for compatibility). Qualitative and quantitative predictors should represent variables of interest for the species. The importation of the raster maps can be done through the ''Import egvs'' menu (Figure \ref{Figure:Importegvs}). If not specified, the output name of the uploaded file is set to the original one as default. Maps are automatically uploaded to a GRASS session. NOTE: Users can find two example data files in text and Microsoft Excel format into ENiRG installation folder. Users can search for the installation path of ENiRG through typing into the R terminal: \textit{system.file(package='ENiRG')}.
+\begin{figure}[H]
+\begin{center}
+\includegraphics[keepaspectratio=true, width=10cm]{importegvs.png}
+\end{center}
+\caption{Importing ecogeographical variables (egvs).}
+\label{Figure:Importegvs}
+\end{figure}
+
+Users can check metadata regarding the predictors and summarize the current settings of GRASS environment (Figure \ref{Figure:Mapinfo}).
+\begin{figure}[H]
+\begin{center}
+\includegraphics[keepaspectratio=true, width=4cm]{mapinfo1.png}
+\includegraphics[keepaspectratio=true, width=9cm]{mapinfo2.png}
+\end{center}
+\caption{Getting information about a map.}
+\label{Figure:Mapinfo}
+\end{figure}
+
+\newpage
+
+A list of available maps can be imported, also searching for a particular pattern (Figure \ref{Figure:Listmaps}).
+\begin{figure}[H]
+\begin{center}
+\includegraphics[keepaspectratio=true, width=10cm]{listmaps.png}
+\end{center}
+\caption{Listing maps in the current GRASS/ENiRG session.}
+\label{Figure:Listmaps}
+\end{figure}
+
+When making predictions, standardization of egv can be advantageous, finding the maximum likelihood estimates. This process can be accessed from the ''Data'' menu  (Figure \ref{Figure:Data}). If not specified, the output name of the standardized file will contain the prefix "std\_" plus the original name.  More than one map can be standardized at the time.
+
+\subsection{Configuring and running ENFA analysis}
+The main function \textit{enirg()} can be used through ''enirg'' option in ''Analysis'' menu (Figure \ref{Figure:Analysis}). After setting predictor variables and occurrence points (note that the number of observations will appear closed to the data frame name in to GUI), the analysis can be run. The number of specialization factors will be interactively chosen later during the processing (chose 1 for this example). Results are returned into a list object, which will have the name set using the output boxes. 
+\begin{figure}[H]
+\begin{center}
+\includegraphics[keepaspectratio=true, width=6cm]{analysis.png}
+\includegraphics[keepaspectratio=true, width=7cm]{enirg.png}
+\end{center}
+\caption{enirg analysis option into the analysis menu.}
+\label{Figure:Analysis}
+\end{figure}
+
+Habitat suitability map can be calculated using ''enirg prediction'' from the menu ''analysis'' (Figure \ref{Figure:Predict}). If the user does not provide a new set of maps, the calculations will be done over the same ecogeographical variables, which were used to run \textit{enirg} function.
+\begin{figure}[H]
+\begin{center}
+\includegraphics[keepaspectratio=true, width=6cm]{prediction.png}
+\end{center}
+\caption{Calculating HSM predictions.}
+\label{Figure:Predict}
+\end{figure}
+
+To perform Boyce continuous classification index on prediction results, two vector objects are needed. First, a vector containing the predictions for our observations. Second, a vector containing all the prediction values for the entire area of study. Both vectors will be automatically extracted from the results of the prediction steps.
+\begin{figure}[H]
+\begin{center}
+\includegraphics[keepaspectratio=true, width=10cm]{boyce.png}
+\end{center}
+\caption{Classification setting menu.}
+\label{Figure:}
+\end{figure}
+
+Finally, the classification can be made manually, searching for the best Spearman coefficient and adjusted $r^2$ (Figure \ref{Figure:Classification}). NOTE: Try with the following intervals for the best classification fit:
+\begin{itemize}
+ \item unsuitable = 0.25
+ \item marginal = 0.69
+ \item suitable = 0.81
+\end{itemize}
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[keepaspectratio=true, width=5cm]{classification1.png}
+\includegraphics[keepaspectratio=true, width=8cm]{classification2.png} \\
+\includegraphics[keepaspectratio=true, width=12cm]{classification3.png}
+\end{center}
+\caption{Classification process.}
+\label{Figure:Classification}
+\end{figure}
+
+Now, the user is able to reclassify the HSM map into the four suitability classes according to \citep{Boyce2002} (unsuitable, marginal, suitable, optimal) (Figure \ref{Figure:Reclassification}).
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[keepaspectratio=true, width=8cm]{reclassification.png}
+\end{center}
+\caption{Reclassification window.}
+\label{Figure:Reclassification}
+\end{figure}
+
+\subsection{Visualization tools}
+The user is able to view the generated maps and results through the ''Visualization'' menu (Figure \ref{Figure:Visualization}). The ordination results can be plotted by using ''Plot enirg''. (Figure \ref{Figure:Plot}).
+\begin{figure}[H]
+\begin{center}
+\includegraphics[keepaspectratio=true, width=6cm]{visualization.png}
+\end{center}
+\caption{Visualization menu.}
+\label{Figure:Visualization}
+\end{figure}
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[keepaspectratio=true, width=6cm]{plot.png}
+\includegraphics[keepaspectratio=true, width=6cm]{ordination.png}
+\end{center}
+\caption{Plotting enirg results.}
+\label{Figure:Plot}
+\end{figure}
+
+The user can plot the spatial representation of the marginality and specialization axes by using ''Plot enirg maps'' (Figure \ref{Figure:Plotmaps}).
+\begin{figure}[H]
+\begin{center}
+\includegraphics[keepaspectratio=true, width=6cm]{plotenirgmap.png}
+\end{center}
+\caption{Plotting the spatial representation of marginality and specialization axes.}
+\label{Figure:Plotmaps}
+\end{figure}
+
+The user can also plot the classified and non-classified HSM by using ''Plot HSM map'' (Figure \ref{Figure:PlotHSM}).
+\begin{figure}[H]
+\begin{center}
+\includegraphics[keepaspectratio=true, width=6cm]{plothsm.png}
+\end{center}
+\caption{Plotting the spatial representation of marginality and specialization axes.}
+\label{Figure:PlotHSM}
+\end{figure}
+
+
+At any time, the user can save the current graphic into a file in any of ''jpeg'', ''tiff'' or ''png'' formats (Figure \ref{Figure:Save})
+\begin{figure}[H]
+\begin{center}
+\includegraphics[keepaspectratio=true, width=6cm]{savegraphic.png}
+\end{center}
+\caption{Saving current graphic.}
+\label{Figure:Save}
+\end{figure}
+
+\section{References}
+\begin{thebibliography}{4}
+ \bibitem[{Boyce \textit{et al}.(2002)}]{Boyce2002}
+ Boyce, M.S.,Vernier, P.R.,Nielsen,S.E.,Schmiegelow, F.K.A. (2002). Evaluating resource selection functions. Ecological Modelling 157, 281-300.
+ 
+ \bibitem[{Canovas \textit{et al}.(2002)}]{Canovas2002}
+  Canovas, F., De la Rua, P. Serrano, J. and Galian, J. (2002). Mitochondrial DNA variability in Apis mellifera iberica populations from Galicia. Archivos de Zootecnia, 51: 441-448
+
+ \bibitem[{Canovas \textit{et al}.(2008)}]{Canovas2008}
+ Canovas, F., De la Rua, P. Serrano, J. and Galian, J. (2008). Geographical patterns of mitochondrial DNA variation in Apis mellifera iberiensis (Hymenoptera: Apidae). Journal of Zoological Systematics and Evolutionary Research, 46(1): 23-30
+
+ \bibitem[{Canovas \textit{et al}.(2014)}]{Canovas2014}
+ Canovas, F., De la Rua, P. Serrano, J. and Galian, J. (2014). Analysing and describing a contact area of two distinct evolutionary units. An ecological perspective. Journal of Insect Conservation. DOI: 10.1007/s10841-014-9701-1.
+\end{thebibliography}
+
+\end{document}
