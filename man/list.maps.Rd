@@ -6,35 +6,31 @@ List available raster and/or vector maps
 }
 
 \description{
-The function gives the list of maps in the current GRASS session, matching with a user-specified pattern.
+This function gives a list of maps in the current GRASS session, matching with a user-specified pattern.
 }
 
 \usage{
-list.maps(type = c("rast", "vect"), prefix = "*")
+list.maps(prefix = "*")
 }
 
 \arguments{
 
-\item{type}{
-character string from "rast" (raster maps), or "vect" (vectorial maps).
-}
-
 \item{prefix}{
-character string. It states the pattern to search for.
+character string. It states a pattern to search for.
 }
 
 }
 
 \details{
-The argument \code{prefix} allows to list all maps matching a regular expression or pattern, i.e., "std_*" will search for all the maps starting with "std_".
+Argument \code{prefix} allows to list all maps matching a regular expression or pattern, i.e., "std_*" will search for all maps starting with "std_". See also \url{https://en.wikipedia.org/wiki/Regular_expression} regular expressions (aka regex) - from Wikipedia, the free encyclopedia. 
 }
 
 \value{
-Return a vector of all the maps available in the current GRASS session or matching a regular expression.
+Return a list of all both vectorial and raster maps available in the current GRASS session, matching a regular expression.
 }
 
 \references{
-\url{http://grass.osgeo.org/grass65/manuals/g.mlist.html}
+\url{https://grass.osgeo.org/grass70/manuals/g.list.html}
 }
 
 
@@ -43,21 +39,24 @@ Chiara  Magliozzi \email{chiara.magliozzi@libero.it}, Fernando Canovas \email{fc
 }
 
 \seealso{
-\code{\link{map.info}}, \code{\link{import.egvs}}, \code{\link[spgrass6]{initGRASS}}
+\code{\link{map.info}}, \code{\link{import.egvs}}, \code{\link[rgrass7]{initGRASS}}
 }
 
 \examples{
 \dontrun{
 # starting GRASS session
-initGRASS("/usr/bin/grass-6.4.0", home=tempdir())
+initGRASS("/usr/bin/grass-7.0.0", home=tempdir())
 initGRASS("C:/GRASS", home=tempdir())
 
 ## Path of the files to be read
-file1 <- paste(system.file(package = "ENiRG"),"/ext/tann.asc", sep="")
-import.egvs(file1, "tann")
+predictor.names <- c("tann", "mntcm", "mxtwm", "rfann", "rfdm", "rfwm")
+file.names <- paste(system.file(package = "ENiRG"),
+                    "/ext/", predictor.names, ".asc", sep="")
 
-list.maps("rast")
+import.egvs(file.names, predictor.names)
 
+list.maps("rf*")
+list.maps("*ann")
 }
 }
 

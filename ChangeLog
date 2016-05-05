@@ -1,0 +1,51 @@
+2016-05-05 astarte
+
+	* DESCRIPTION: ---------- release of ENiRG 1.0-1 ----------
+
+2016-05-05 astarte
+
+	*  3 changed files with 7 additions and 7 deletions
+	* DESCRIPTION, NAMESPACE, R/enirg.GUI.R
+	
+2016-05-04 astarte
+
+	* 11 changed files with 27 additions and 23 deletions
+	* DESCRIPTION, NAMESPACE, R/enirg.GUI.R, R/enirg.R, README.md, man/ENiRG-package.Rd, man/apis.enirg.Rd, man/boyce.Rd, man/enirg.GUI.Rd, man/enirg.Rd, man/enirg.plot.Rd
+
+2016-05-03 astarte
+
+	* 24 changed files with 307 additions and 209 deletions
+	* DESCRIPTION, NAMESPACE, R/enirg.GUI.R, R/enirg.R, data/apis.enirg.rda, data/apis.hsm.rda, data/cbi.results.rda, inst/doc/vignette.rnw, inst/doc/vignette2.rnw, man/ENiRG-package.Rd, man/apis.enirg.Rd, man/apis.hsm.Rd, man/boyce.Rd, man/cbi.results.Rd, man/classify.map.Rd, man/enirg.GUI.Rd, man/enirg.Rd, man/enirg.plot.Rd, man/enirg.predict.Rd, man/import.egvs.Rd, man/list.maps.Rd, man/map.info.Rd, man/stdz.maps.Rd, vignettes/vignette.rnw, vignettes/vignette2.rnw
+
+2015-10-22 astarte
+
+	* 6 changed files with 18 additions and 62 deletions
+	* R/classify.map.R, R/enirg.GUI.R, R/enirg.R, R/import.egvs.R, R/stdz.maps.R, man/enirg.Rd
+
+2015-10-21 astarte
+
+	* 9 changed files with 564 additions and 613 deletions
+	* R/enirg.R, R/stdz.maps.R, inst/ext/mntcm.asc, inst/ext/mxtwm.asc, inst/ext/rfann.asc, inst/ext/rfdm.asc, inst/ext/rfwm.asc, inst/ext/tann.asc, man/enirg.Rd
+
+
+	
+2015-10-15 astarte
+
+	* 19 changed files with 287 additions and 168 deletions
+	* DESCRIPTION, NAMESPACE, R/classify.map.R, R/enirg.GUI.R, R/enirg.R, R/list.maps.R, data/apis.enirg.rda, data/apis.hsm.rda, man/ENiRG-package.Rd, man/classify.map.Rd, man/list.maps.Rd, man/map.info.Rd, man/stdz.maps.Rd, vignettes/figures/listmaps.png, vignettes/figures/ordination.png, vignettes/figures/vignette-010.pdf, vignettes/figures/vignette-011.pdf, vignettes/vignette.rnw, vignettes/vignette2.rnw
+
+
+
+2015-06-04 astarte
+
+	* 8 changed files with 93 additions and 24 deletions
+	* README.md, R/enirg.GUI.R, build/vignette.rds, data/apis.enirg.rda, man/apis.hsm.Rd, man/enirg.predict.Rd, man/ENiRG-package.Rd
+
+2015-05-13 astarte
+
+	* 22 changed files with 481 additions and 431 deletions
+	* DESCRIPTION, R/enirg.GUI.R, R/enirg.predict.R, data/apis.enirg.rda, data/apis.hsm.rda, data/cbi.results.rda, inst/CITATION, inst/ext/mntcm.asc, inst/ext/mxtwm.asc, inst/ext/rfdm.asc, inst/ext/tann.asc, man/ENiRG-package.Rd, man/boyce.Rd, man/cbi.results.Rd, man/classify.map.Rd, man/enirg.Rd, man/enirg.plot.Rd, man/enirg.predict.Rd, man/import.egvs.Rd, man/list.maps.Rd, man/map.info.Rd, man/stdz.maps.Rd
+
+2014-10-09 astarte
+
+	* DESCRIPTION: ---------- release of ENiRG 0.1-1 ----------

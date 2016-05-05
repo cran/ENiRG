@@ -1,11 +1,9 @@
 classify.map <-
-function(enirg.results, suit.classes, output.name = NULL, load.map = FALSE) {
-    if (class(enirg.results) != "enirg") 
-        stop("The function classify.map needs an object of class 'enirg'!")
+function(map, suit.classes, output.name = NULL, load.map = FALSE) {
     if (class(suit.classes) != "CBI") 
         stop("The function classify.map needs an object of class 'CBI'!")
     if (is.null(output.name)) 
-        output.name <- paste(enirg.results$species, "_hsm_class", sep = "")
+        output.name <- paste(map, "_class", sep = "")
     breaks <- suit.classes$intervals[2:4]
     print(breaks)
     settings_text <- " 0 thru x1x = 1 unsuitable\n x2x thru x3x = 2 marginal\n x4x thru x5x = 3 suitable\n x6x thru 1 = 4 optimal"
@@ -16,12 +14,11 @@ function(enirg.results, suit.classes, output.name = NULL, load.map = FALSE) {
     settings_text <- sub("x5x", breaks[3], settings_text)
     settings_text <- sub("x6x", breaks[3], settings_text)
     write(settings_text, file = "classes.txt")
-    execGRASS("r.reclass", input = paste(enirg.results$species, "_hsm", sep = ""), 
-        output = output.name, rules = "classes.txt", flags = "overwrite")
+    execGRASS("r.reclass", input = map, output = output.name, rules = "classes.txt", flags = c("overwrite", "quiet"))
     cat(paste(output.name, " raster map was sucessfully classify!\n", sep = ""))
     if (load.map) {
         map <- list()
-        map[[paste(enirg.results$species, "HSM", sep=" ")]] <- raster(readRAST6(output.name))
+        map[[output.name]] <- raster(readRAST(output.name))
         class(map) <- c("hsm", "classified")
         return(map)
     }

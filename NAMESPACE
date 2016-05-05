@@ -17,24 +17,33 @@ export(boyce,
 ################################
 exportClasses("enirg")
 exportClasses("cbi")
+exportClasses("hsm")
 
 #####################################
 ##               Import            ##
 #####################################
+importFrom("grDevices", dev2bitmap, dev.new, chull)
+importFrom("graphics", abline, arrows, legend, locator, par,
+           points, polygon, segments, symbols, image)
+importFrom("stats", lm, median, sd, na.exclude)
+importFrom("utils", combn, read.table)
+
 import("raster")
 import("tcltk")
+import("miniGUI")
 
 importFrom("ade4", s.arrow)
 importFrom("fgui", gui, guiv, guiGetValue, guiSet, setListElements)
 importFrom("gdata", read.xls)
-importFrom("miniGUI", miniGUIscale ,makeWidgetCmd)
-importFrom("R.utils", hpaste)
-#importFrom("raster", raster, plot, contour)
+#importFrom("miniGUI", miniGUIscale ,makeWidgetCmd)
+#importFrom("raster", raster, .plotraster, contour)
 importFrom("sp", SpatialPointsDataFrame)
-importFrom("spgrass6", initGRASS, execGRASS, readRAST6, readVECT6, writeVECT6, writeRAST6, gmeta6)
+importFrom("rgrass7", initGRASS, execGRASS, readRAST, readVECT,
+           writeVECT, writeRAST, gmeta)
 #importFrom("tcltk", tktoplevel, tclVar, tcl, tklabel,
 #           tkpack, tktitle, tkmenu, tkconfigure, tkadd,
 #           tkbutton, tkgrid, tkcurselection, tkdestroy,
 #           tkmessageBox, tkwm.title, tkscrollbar,
 #           tklistbox, tkbind)
+
 

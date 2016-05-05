@@ -1,15 +1,15 @@
 Package: ENiRG
 Type: Package
 Title: Ecological Niche in R and GRASS
-Version: 0.1
-Date: 2014-05-21
+Version: 1.0
+Date: 2016-05-05
 Author: Fernando Canovas, Chiara Magliozzi, Jose Antonio Palazon-Ferrando, Frederico Mestre, Mercedes Gonzalez-Wanguemert
 Maintainer: Fernando Garcia Canovas <fcgarcia@ualg.pt>
-Description: The package allows to perform the Ecological Niche Factor Analysis, calculate habitat suitability maps and classify the habitat in suitability classes. Computations are executed in a throw-away GRASS environment from R in order to be able to perform analysis with large data sets. 
+Description: A set of tools for the analysis of ecological niche of species and calculation of habitat suitability maps.
 License: GPL (>= 2)
-Depends: ade4, raster, R.utils, sp, spgrass6
-Imports: gdata, fgui, miniGUI, tcltk
-Packaged: 2014-10-09 10:30:36 UTC; fcgarcia
+Depends: ade4, miniGUI, raster, sp, rgrass7
+Imports: gdata, fgui, tcltk
 NeedsCompilation: no
+Packaged: 2016-05-05 10:30:16 UTC; fcgarcia
 Repository: CRAN
-Date/Publication: 2014-10-09 14:33:32
+Date/Publication: 2016-05-05 16:03:42

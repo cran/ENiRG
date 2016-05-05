@@ -5,14 +5,15 @@ function(map.names, output.names = NULL) {
     if (length(map.names) != length(output.names)) 
         stop("The number of in/output map names for the maps do not match!\n\n")
     for (i in 1:length(map.names)) {
-        statistic <- execGRASS("r.univar", map = map.names[i], flags = "g", intern = TRUE, 
+        execGRASS("g.region", raster = map.names[i])
+        statistic <- execGRASS("r.univar", map = map.names[i], flags = c("g", "quiet"), intern = TRUE, 
             legacyExec = TRUE)
         map.stdev <- as.numeric(strsplit(statistic[agrep(statistic, pattern = "stddev")], 
             "=")[[1]][[2]])
         map.mean <- as.numeric(strsplit(statistic[agrep(statistic, pattern = "mean")], 
             "=")[[1]][[2]])
-        execGRASS("r.mapcalculator", amap = map.names[i], formula = paste("(A-", 
-            map.mean, ")/", map.stdev, sep = ""), outfile = output.names[i], flags = "overwrite", 
+        execGRASS("r.mapcalc", expression = paste(output.names[i], "=(", map.names[i], "-", 
+            map.mean, ")/", map.stdev, sep = ""), flags = c("overwrite", "quiet"), 
             legacyExec = TRUE)
         cat(paste(map.names[i], " raster map was sucessfully standardized as ", output.names[i], 
             "!\n\n", sep = ""))

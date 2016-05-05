@@ -9,18 +9,18 @@ Classification of the HSM
 \code{classify.map} classifies the Habitat Suitability Map (HSM) using suitability classes.}
 
 \usage{
-classify.map(enirg.results, suit.classes, output.name, load.map = FALSE)
+classify.map(map, suit.classes, output.name = NULL, load.map = FALSE)
 }
 
 \arguments{
-  \item{enirg.results}{
-object of class \code{\link{enirg}}
+  \item{map}{
+unclassified suitability map name from GRASS.
 }
   \item{suit.classes}{
 object of class \code{\link{boyce}}, giving the suitability classes.
 }
   \item{output.name}{
-string. Name for the classified map. If set to \code{NULL} (by default), suffix "_hsm_class" will be automatically added to the species name stored into the \code{\link{enirg}} object.
+string. Name for classified map.
 }
   \item{load.map}{
 logical. Whether the map should be uploaded as an object of class \code{\link[raster]{raster}}
@@ -29,7 +29,7 @@ logical. Whether the map should be uploaded as an object of class \code{\link[ra
 
 
 \value{
-The function \code{classify.map} allows to classify the HSM according to the breaks, which are the limits for the intervals in the four suitability classes (unsuitable, marginal, suitable and optimal; Hirzel et al., 2006). Those values can be obtained by using CBI \code{\link{boyce}}. HSM classified map layer in GRASS, which can be also uploaded into R by setting \code{load.map} to TRUE.
+Function \code{classify.map} allows to classify the HSM according to breaks, which represents limits for intervals in the four suitability classes (unsuitable, marginal, suitable and optimal; Hirzel et al., 2006). Those values can be obtained by using CBI \code{\link{boyce}}. HSM classified map layer in GRASS can be also uploaded into R by setting \code{load.map} to TRUE.
 }
 
 \references{
@@ -50,7 +50,7 @@ Fernando Canovas \email{fcgarcia@ualg.pt}
 \examples{
 \dontrun{
 # starting GRASS session
-initGRASS("/usr/bin/grass-6.4.0", home=tempdir())
+initGRASS("/usr/bin/grass-7.0.0", home=tempdir())
 initGRASS("C:/GRASS", home=tempdir())
 
 data(apis.enirg)
@@ -59,7 +59,7 @@ data(apis.enirg)
 lina <- apis.enirg$presences
 
 # loading the environmental information in batch
-predictor.names <- c("tann", "mxtwm", "mntcm", "rfann", "rfdm", "rfwm")
+predictor.names <- c("tann", "mxtwm", "mntcm", "rfdm", "rfseas")
 predictor.maps <- paste("std_", predictor.names, sep="")
 file.names <- paste(system.file(package = "ENiRG"),
                     "/ext/", predictor.names, ".asc", sep="")
@@ -71,15 +71,16 @@ stdz.maps(predictor.names, predictor.maps)
 
 # performing the Ecologigal Niche Factor Analysis (ENFA)
 enirg(presences.table = lina, qtegv.maps = predictor.maps,
-      species.name = "African", nf = 1, scannf = FALSE,
+      species.name = "African", nf = 3, scannf = FALSE,
       method = "normal") -> apis.enfa
 
 enirg.predict(apis.enfa, load.map = TRUE, method = "normal") -> apis.hsm
 
 data(cbi.results)
 
-classify.map(apis.enfa, cbi.results,
-             output.name="African_hsm_class") -> apis.hsm.class
+classify.map(map = "African_predicted_hsm",
+             suit.classes = cbi.results,
+             output.name = "African_hsm_class") -> apis.hsm.class
 }
 }
 

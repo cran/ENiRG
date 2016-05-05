@@ -1,8 +1,6 @@
 list.maps <-
-function(type = c("rast", "vect"), prefix = "*") {
-    maps.list <- NULL
-    for (i in type) {
-        maps.list[[i]] <- execGRASS("g.mlist", type = i, pattern = prefix, intern = TRUE)
-    }
-    return(maps.list)
+function(prefix = "*") {
+    raster.list <- execGRASS("g.list", type = "raster", pattern = prefix, intern = TRUE)
+    vector.list <- execGRASS("g.list", type = "vector", pattern = prefix, intern = TRUE)
+    return(list(raster = raster.list, vector = vector.list))
 }

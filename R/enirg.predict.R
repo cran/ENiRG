@@ -1,41 +1,38 @@
 enirg.predict <-
 function(enirg.results, qtegv.maps = NULL, qlegv.maps = NULL, load.map = FALSE, 
-    method = "normal") {
+    method = "normal", prediction.name = "predicted") {
     if (class(enirg.results) != "enirg") 
         stop("The function predict.enirg needs an object of class 'enirg'!")
-    if (enirg.results$nf > 4) 
-        stop("The function predict.enirg does not allow nf > 4!")
-    egv.maps <- c(qlegv.maps, qtegv.maps)
+    egv.map.names <- c(qlegv.maps, qtegv.maps)
+    li.map.names <- paste(enirg.results$species, "_li_", colnames(enirg.results$co), sep="")
+    pred.map.name <- paste(enirg.results$species, "_", prediction.name, "_pred", sep = "")
+    hsm.map.name <- paste(enirg.results$species, "_", prediction.name, "_hsm", sep = "")
     HSM <- list()
-    if (!is.null(egv.maps)) {
-        cat("\n\nCalculating li prediction maps ...\n\n")
+    if (!is.null(egv.map.names)) {
+        if (length(egv.map.names) != length(enirg.results$egvs))
+            stop("Number of prediction maps does not match number of maps used to estimate the niche!")
+        cat("\n\nCalculating li prediction maps from new set of EGVs ...\n\n")
+        li.map.names <- paste(enirg.results$species, "_", prediction.name,"_li_Mar", sep="")
+        for(i in 1:enirg.results$nf) {
+            li.map.names <- c(li.map.names, paste(enirg.results$species, "_", prediction.name,"_li_Spec", i, sep=""))
+        }
+        li.calc <- c()
+        for (j in 1:ncol(enirg.results$co)) {
+            pre1 <- paste(egv.map.names, enirg.results$co[, j], sep = " * ")
+            calc <- paste(li.map.names[j], "= 0", sep = "")
+            for (i in 1:length(pre1)) calc <- paste(calc, pre1[i], sep = " + ")
+            li.calc <- c(li.calc, calc)
+        }
         if (method == "normal") {
-            for (j in 1:(enirg.results$nf + 1)) {
-                execGRASS("r.mapcalculator", outfile = paste("predli_", colnames(enirg.results$co)[j], 
-                  sep = ""), formula = "0", flags = "overwrite")
-                for (i in 1:length(egv.maps)) {
-                  execGRASS("r.mapcalculator", amap = egv.maps[i], outfile = "temp", 
-                    formula = paste("A*", enirg.results$co[i, j], sep = ""), flags = c("overwrite"))
-                  execGRASS("r.mapcalculator", amap = paste("predli_", colnames(enirg.results$co)[j], 
-                    sep = ""), bmap = "temp", outfile = paste("predli_", colnames(enirg.results$co)[j], 
-                    sep = ""), formula = "A+B", flags = "overwrite")
-                }
-            }
-            cat("\n\nCleaning GRASS mapset!\n\n")
-            execGRASS("g.remove", rast = "temp")
+            for(i in 1:length(li.calc)) execGRASS("r.mapcalc", expression = li.calc[i], flags = "overwrite")
         }
         if (method == "large") {
-            for (j in 1:(enirg.results$nf + 1)) {
-                cc <- paste("(", enirg.results$co[, j], ")", sep = "")
-                pre1 <- paste(egv.maps, cc, sep = " * ")
-                calc <- paste("r.mapcalc '", paste("predli_", colnames(enirg.results$co)[j], sep = ""), 
-                  " = 0", sep = "")
-                for (i in 1:(length(egv.maps) - 1)) calc <- paste(calc, pre1[i], sep = " + ")
-                calc <- paste(calc, " + ", pre1[length(egv.maps)], "'", sep = "")
-                system(calc)
-            }
+            for(i in 1:length(li.calc)) system(paste("r.mapcalc --overwrite", li.calc[i], sep = ""))
         }
     }
+    HSM[["EGV_map_names"]] <- egv.map.names
+    HSM[["li_map_names"]] <- li.map.names
+    HSM[["HSM_map_name"]] <- hsm.map.name
     cat("\n\nCalculating Mahalanobis distances ...\n\n")
     tmp <- as.matrix(enirg.results$obs.li[, c(3:(enirg.results$nf + 3), 2)])
     mat.presences <- matrix(nrow = sum(tmp[, enirg.results$nf + 2]), ncol = ncol(enirg.results$co))
@@ -54,101 +51,69 @@ function(enirg.results, qtegv.maps = NULL, qlegv.maps = NULL, load.map = FALSE,
     mean.centre <- apply(mat.presences, 2, median)
     cov <- t(as.matrix(mat.presences)) %*% as.matrix(mat.presences)/nrow(mat.presences)
     cova <- solve(cov)
-    cat(paste("\n\nCalculating the Habitat Suitability Map (", enirg.results$species, 
-        "_hsm...\n\n", sep = ""))
+    cat(paste("\n\nCalculating the Habitat Suitability Map ", enirg.results$species, "_", prediction.name,
+        "_hsm ...\n\n", sep = ""))
     f3 <- function(i) enirg.results$co[, i]/sqrt(crossprod(enirg.results$co[, i])/length(enirg.results$co[, 
         i]))
     c1 <- matrix(unlist(lapply(1:(enirg.results$nf + 1), f3)), length(enirg.results$egvs))
+    li_number <- length(li.map.names)
+    c1 <- paste("(", li.map.names, "-", mean.centre, ")", sep = "")
+    c <- (paste(c1, "*", cova, sep = ""))
+    c3 <- NULL
+    for (i in 1:(enirg.results$nf + 1)) {
+        c3[i] <- ""
+        for (j in 1:enirg.results$nf) c3[i] <- paste(c3[i], c[j + (i - 1) * (enirg.results$nf + 
+            1)], "+", sep = "")
+        j <- j + 1
+        c3[i] <- paste(c3[i], c[j + (i - 1) * (enirg.results$nf + 1)], sep = "")
+    }
+    calc <- paste("(", c3[1], ")", "*", c1[1], sep = "")
+    i <- 1
+    if (length(c3) > 2) 
+        for (i in 2:(length(c3) - 1)) calc <- paste(calc, "+", "(", c3[i], ")", 
+            "*", c1[i], sep = "")
+    calc <- paste(calc, "+", "(", c3[length(c3)], ")", "*", c1[i + 1], sep = "")
+    calc.pred <- paste(pred.map.name, " = ", calc, sep = "")
     if (method == "normal") {
-        li.maps <- LETTERS[1:(enirg.results$nf + 1)]
-        li_number <- length(li.maps)
-        c1 <- paste("(", li.maps, "-", mean.centre, ")", sep = "")
-        c <- (paste(c1, "*", cova, sep = ""))
-        c3 <- NULL
-        for (i in 1:(enirg.results$nf + 1)) {
-            c3[i] <- ""
-            for (j in 1:enirg.results$nf) c3[i] <- paste(c3[i], c[j + (i - 1) * (enirg.results$nf + 
-                1)], "+", sep = "")
-            j <- j + 1
-            c3[i] <- paste(c3[i], c[j + (i - 1) * (enirg.results$nf + 1)], sep = "")
-        }
-        calc <- paste("(", c3[1], ")", "*", c1[1], sep = "")
-        i <- 1
-        if (length(c3) > 2) 
-            for (i in 2:(length(c3) - 1)) calc <- paste(calc, "+", "(", c3[i], ")", 
-                "*", c1[i], sep = "")
-        calc <- paste(calc, "+", "(", c3[length(c3)], ")", "*", c1[i + 1], sep = "")
-        if (is.null(egv.maps)) {
-            execGRASS("r.mapcalculator", amap = "li_Mar", bmap = "li_Spec1", cmap = "li_Spec2", 
-                dmap = "li_Spec3", emap = "li_Spec4", fmap = "li_Spec5", formula = calc, 
-                outfile = paste(enirg.results$species, "_pred", sep = ""), flags = "overwrite", 
-                legacyExec = TRUE)
-        }
-        else execGRASS("r.mapcalculator", amap = "predli_Mar", bmap = "predli_Spec1", 
-            cmap = "predli_Spec2", dmap = "predli_Spec3", emap = "predli_Spec4", 
-            fmap = "predli_Spec5", formula = calc, outfile = paste(enirg.results$species, 
-                "_pred", sep = ""), flags = "overwrite", legacyExec = TRUE)
-        statistic <- execGRASS("r.univar", map = paste(enirg.results$species, "_pred", 
-            sep = ""), flags = "g", intern = TRUE, legacyExec = TRUE)
+        execGRASS("r.mapcalc", expression = calc.pred, flags = "overwrite", legacyExec = TRUE)
+        statistic <- execGRASS("r.univar", map = pred.map.name, flags = "g", intern = TRUE, legacyExec = TRUE)
         map.max <- as.numeric(strsplit(statistic[agrep(statistic, pattern = "max")], 
             "=")[[1]][[2]])
-        execGRASS("r.mapcalculator", amap = paste(enirg.results$species, "_pred", 
-            sep = ""), formula = paste("1-(A/", map.max, ")", sep = ""), outfile = paste(enirg.results$species, 
-            "_hsm", sep = ""), flags = "overwrite", legacyExec = TRUE)
-        cat(paste(enirg.results$species, "_hsm", sep = ""), " HSM map was sucessfully created!\n\n", 
-            sep = "")
+        calc.hsm <- paste(hsm.map.name, "=1-(", pred.map.name, "/", map.max, ")", sep = "")
+        execGRASS("r.mapcalc", expression = calc.hsm, flags = "overwrite", legacyExec = TRUE)
         if (load.map == TRUE) {
-            HSM[[paste(enirg.results$species, "_hsm", sep = "")]] <- raster(readRAST6(paste(enirg.results$species, 
-                "_hsm", sep = "")))
+            HSM[[hsm.map.name]] <- raster(readRAST(hsm.map.name))
         }
     }
     if (method == "large") {
-        if (is.null(egv.maps)) 
-            predli <- paste("li_", colnames(enirg.results$co), sep = "")
-        else predli <- paste("predli_", colnames(enirg.results$co), sep = "")
-        c1 <- paste("(", predli, "-", mean.centre, ")", sep = "")
-        c <- (paste(c1, "*", cova, sep = ""))
-        c3 <- NULL
-        for (i in 1:(enirg.results$nf + 1)) {
-            c3[i] <- ""
-            for (j in 1:enirg.results$nf) c3[i] <- paste(c3[i], c[j + (i - 1) * (enirg.results$nf + 
-                1)], "+", sep = "")
-            j <- j + 1
-            c3[i] <- paste(c3[i], c[j + (i - 1) * (enirg.results$nf + 1)], sep = "")
-        }
-        calc <- paste("r.mapcalc '", enirg.results$species, "_pred=(", c3[1], ")", 
-            "*", c1[1], sep = "")
-        i <- 1
-        if (length(c3) > 2) 
-            for (i in 2:(length(c3) - 1)) calc <- paste(calc, "+", "(", c3[i], ")", 
-                "*", c1[i], sep = "")
-        calc <- paste(calc, "+", "(", c3[length(c3)], ")", "*", c1[i + 1], "'", sep = "")
-        system(calc)
-        statistic <- system(paste("r.univar -g ", paste(enirg.results$species, "_pred", 
-            sep = ""), sep = ""), intern = T)
+        calc.pred <- paste("r.mapcalc --overwrite '", calc.pred, "'", sep = "")
+        system(calc.pred)
+        statistic <- execGRASS("r.univar", map = pred.map.name, flags = "g", intern = TRUE, legacyExec = TRUE)
         map.max <- as.numeric(strsplit(statistic[agrep(statistic, pattern = "max")], 
             "=")[[1]][[2]])
-        system(paste("r.mapcalc '", paste(enirg.results$species, "_hsm", sep = ""), 
-            " = 1 - (", paste(enirg.results$species, "_pred", sep = ""), "/", map.max, 
-            ")'", sep = ""))
-        cat(paste(paste(enirg.results$species, "_hsm", sep = ""), " HSM map was sucessfully created!\n\n", 
-            sep = ""))
-        cat("You can find HSM in your mapset in GRASS. You can see it through QGIS or using 'raster' library instead.")
+        calc.hsm <- paste("r.mapcalc --overwrite '", hsm.map.name, " = 1-(", pred.map.name, "/", map.max + 0.01, ")'", sep = "")
+        system(calc.hsm)
     }
-    execGRASS("g.remove", vect = enirg.results$species)
-    presences_map <- SpatialPointsDataFrame(enirg.results$presences, data = data.frame(presences = enirg.results$presences[, 
-        3]))
-    writeVECT6(presences_map, enirg.results$species, v.in.ogr_flags = c("e", "overwrite", 
-        "o", "z"))
-    execGRASS("v.db.addcol", map = enirg.results$species, columns = "pred double precision")
-    execGRASS("v.what.rast", vector = enirg.results$species, raster = paste(enirg.results$species, 
-        "_hsm", sep = ""), column = "pred")
-    vect <- readVECT6(enirg.results$species)
-    vect <- data.frame(cbind(vect@data$presences, vect@data$pred))
+    cat(paste("'", hsm.map.name, "' HSM map was sucessfully created!\n\n", sep = ""))
+    cat("You can find HSM in your mapset in GRASS. You can see it through QGIS or using 'raster' library instead.\n\n")
+    presences_map <- SpatialPointsDataFrame(enirg.results$presences, data = data.frame(presences = enirg.results$presences[, 3]))
+    pred.points <- paste(enirg.results$species, "_", prediction.name, sep = "")
+    if(pred.points %in% list.maps()$vector) {
+        cat(paste("'", pred.points, "' map is already present in your mapset!\n"))
+        cat(paste("Removing '", pred.points, "' map ...\n\n"))
+        execGRASS("g.remove", type = "vector",
+            name = pred.points, flags = "f")
+    }
+    writeVECT(SDF = presences_map, vname = pred.points,
+        v.in.ogr_flags = c("overwrite", "o"))
+    execGRASS("v.db.addcolumn", map = pred.points, columns = "pred double precision")
+    execGRASS("v.what.rast", map = pred.points, raster = hsm.map.name, column = "pred")
+    vect <- readVECT(pred.points)
+    vect <- na.exclude(data.frame(cbind(vect@data$presences, vect@data$pred)))
     names(vect) <- c("observed", "predicted")
     HSM[["predictions"]] <- vect
-    hsm.report <- strsplit(execGRASS("r.report", map = paste(enirg.results$species, 
-        "_hsm", sep = ""), nsteps = 10, units = "c", intern = T)[16:25], split = " ")
+    hsm.report <- strsplit(execGRASS("r.report", map = hsm.map.name,
+        nsteps = 10, units = "c", intern = T)[16:25], split = " ")
     hist.hsm <- c()
     for (i in 1:10) {
         hist.hsm <- c(hist.hsm, as.numeric(gsub("([0-9]+).*$", "\\1", hsm.report[[i]][length(hsm.report[[i]])])))

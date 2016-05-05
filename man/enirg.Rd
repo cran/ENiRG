@@ -6,22 +6,22 @@ Ecological Niche in R-Grass
 }
 
 \description{
-\code{enirg} performs the Ecological Niche Factor Analysis (ENFA) by coupling R and GRASS softwares and following Hirzel \emph{et al}. (2002). 
+\code{enirg} performs an Ecological Niche Factor Analysis (ENFA) by coupling R and GRASS softwares and following Hirzel \emph{et al}. (2002). 
 }
 
 \usage{
 enirg(presences.table, qtegv.maps, qlegv.maps = NULL, col.w = NULL,
       scannf = TRUE, nf = 1, method = "normal", load.maps = FALSE,
-      species.name = "species")
+      species.name = "species", map.center = NULL, res = NULL)
 }
 
 \arguments{
   \item{qtegv.maps}{
-vector of strings, giving the names of the raster maps, containing quantitative environmental variables. 
+vector of strings, giving names of raster maps, containing quantitative environmental variables.
 }
 
   \item{qlegv.maps}{
-by default is set to NULL. vector of strings, giving the names of the raster maps, containing qualitative environmental variables (see details). 
+by default is set to NULL. Vector of strings, giving names of the raster maps, containing qualitative environmental variables (see details). 
 }
 
   \item{presences.table}{
@@ -34,36 +34,44 @@ data frame with species presence records in three columns, containing:
   }
 
   \item{col.w}{
-vector with column weights with the same length as the number of quantitative and qualitative maps.
+vector with column weights with same length as number of quantitative and qualitative maps.
 }
 
   \item{scannf}{
-logical. Whether the number of factors should be introduced by the user (TRUE) or not (FALSE). A barplot with the eigenvalues of the analysis is displayed.
+logical. Whether number of factors should be introduced by user (TRUE) or not (FALSE). A barplot with eigenvalues after analysis is displayed.
 }
 
   \item{nf}{
-integer, indicating the number of kept specialization axes when \code{scannf=FALSE}.
+integer, indicating number of kept specialization axes when \code{scannf=FALSE}.
 }
 
   \item{method}{
-string character. Selection of the method to perform the calculations, "normal" for normal data sets or "large" for large data sets with huge amount of data. See also details. 
+string character. Selection of method to perform the calculations, "normal" for normal data sets or "large" for large data sets with huge amount of data. See also details. 
 } 
 
   \item{load.maps}{
-logical. Whether the produced maps should be uploaded into R. Note that if you are working with large data sets (\code{method="large"}), this option should be FALSE in order to avoid memory allocation problems.
+logical. Whether produced maps should be uploaded into R. Note that if you are working with large data sets (\code{method="large"}), this option should be FALSE in order to avoid memory allocation problems.
 }
 
   \item{species.name}{
-string, indicating the name of the modelled species. 
+string, indicating name of modelled species. 
+}
+
+  \item{map.center}{
+string, indicating name of a map for centering studied area (also a mask). When NULL, first EGV map will be used. 
+}
+
+  \item{res}{
+integer, indicating resolution for modelling. Unit should be the same as in used maps. When NULL, resolution will be fixed from \code{map.center} or first EGV map.
 }
 }
 
 \details{
-The function \code{enirg} performs the Ecological Niche Factor Analysis (ENFA), following Hirzel \emph{et al.} (2002). The analysis can be carried out for both quantitative variables and qualitative variables. The function requires occurrences records of the modelled species and environmental predictors of the study area.
+Function \code{enirg} performs the Ecological Niche Factor Analysis (ENFA), following Hirzel \emph{et al.} (2002). Analysis can be carried out for both quantitative variables and qualitative variables. This function requires occurrences records of the modelled species and environmental predictors of the study area.
 
-The user can choose the number of factors that better describes the variance and the eigenvalue computation for the factor extraction, by setting \code{scannf=TRUE}.
+User can choose number of factors that better describes the variance and the eigenvalue computation for factor extraction, by setting \code{scannf=TRUE}.
 
-Depending on the extension of the study area and the environmental variables used to performed the analysis, the user can choose one of the two available methods: "normal" and "large". The first, strongly relies on the \code{spgrass6} package and thus is limited by R storage capacity and computations; on the contrary the "large" method directly interface with GRASS, allowing calculations over large areas or high resolution maps with huge amount of data (NOTE: it is only available for Linux/Unix OS, at the moment).
+Depending on extension of the study area and environmental variables used to performed an analysis, user can choose one of two available methods: "normal" and "large". The first, strongly relies on the \code{rgrass7} package and thus is limited by R storage capacity and computations; on the contrary, "large" method directly interface with GRASS, allowing calculations over large areas or high resolution maps with huge amount of data (NOTE: it is only available for Linux/Unix OS, at the moment).
 
 Global marginality is calculated as:
 
@@ -71,17 +79,17 @@ Global marginality is calculated as:
 \eqn{ M = \frac{ \sqrt{ \sum _{i=1}^V m_i^2 } }{ 1.96 } }
 
 
-where \eqn{m_i} represents the marginality of the focal species on each EGV (up to \emph{V} number of EGVs), in units of standards deviations of the global distribution.
+where \eqn{m_i} represents marginality of focal species on each EGV (up to \emph{V} number of EGVs), in units of standards deviations of global distribution.
 
 Global specialization is calculated as:
 
 
-\eqn{ \frac{ \sqrt{ \sum _{i=1}^V \lambda _i } }{ V } } 
+\eqn{ S = \frac{ \sqrt{ \sum _{i=1}^V \lambda _i } }{ V } } 
 
 
-where the eigenvalue \eqn{\lambda _i} associated to any factor expresses the amount of specialization it accounts for, i.e., the ratio of the variance of the global distribution to that of the species distribution on this axis.
+where the eigenvalue \eqn{\lambda _i} associated to any factor expresses the amount of specialization it accounts for, i.e., ratio of the variance of global distribution to that of the species distribution on this axis.
 
-If \code{load.maps} is set to TRUE, then the maps of marginality and \emph{nf} number of specialization maps will be loaded into R, by using \code{raster} library. Note that this is not recommended for large data sets.
+If \code{load.maps} is set to TRUE, then maps of marginality and \emph{nf} number of specialization maps will be loaded into R, by using \code{raster} library. Note that this is not recommended for large data sets.
 
 }
 
@@ -96,13 +104,13 @@ If \code{load.maps} is set to TRUE, then the maps of marginality and \emph{nf} n
 
 \item species. Species' name
 
-\item egvs. A list of the used environmental predictiors
+\item egvs. A list of used environmental predictors
 
-\item qt.egvs. A list of the used quantitative environmental predictiors
+\item qt.egvs. A list of used quantitative environmental predictors
 
-\item ql.egvs. A list of the used quantitative environmental predictiors
+\item ql.egvs. A list of used quantitative environmental predictors
 
-\item presences. A data frame with the table of observations
+\item presences. A data frame containing the observations
 
 \item total.marginality. Global marginality
 
@@ -112,13 +120,13 @@ If \code{load.maps} is set to TRUE, then the maps of marginality and \emph{nf} n
 
 \item specializations. Vector of specializations by axis
 
-\item co. Column coordinates, data frame with \emph{V} rows and nf columns
+\item co. Column coordinates, data frame with \emph{V} rows and \code{nf} columns
 
-\item mar. Coordinates of the marginality vector
+\item mar. Coordinates of marginality vector
 
 \item m. Marginality
 
-\item s. Vector of the eigenvalues
+\item s. Vector of eigenvalues
 
 \item obs.li. Marginality and specialization axis for observations
 }
@@ -136,13 +144,13 @@ Chiara Magliozzi \email{chiara.magliozzi@libero.it}, Fernando Canovas \email{fcg
 }
 
 \seealso{
-\code{\link{stdz.maps}}, \link[adehabitatHS]{enfa}, \code{\link[spgrass6]{initGRASS}}
+\code{\link{stdz.maps}}, \link[adehabitatHS]{enfa}, \code{\link[rgrass7]{initGRASS}}
 }
 
 \examples{
 \dontrun{
 # starting GRASS session
-initGRASS("/usr/bin/grass-6.4.0", home=tempdir())
+initGRASS("/usr/bin/grass-7.0.0", home=tempdir())
 initGRASS("C:/GRASS", home=tempdir())
 
 data(apis.enirg)
@@ -151,7 +159,7 @@ data(apis.enirg)
 lina <- apis.enirg$presences
 
 # loading the environmental information in batch
-predictor.names <- c("tann", "mxtwm", "mntcm", "rfann", "rfdm", "rfwm")
+predictor.names <- c("tann", "mntcm", "rfdm", "rfwm")
 predictor.maps <- paste("std_", predictor.names, sep="")
 file.names <- paste(system.file(package = "ENiRG"),
                     "/ext/", predictor.names, ".asc", sep="")
@@ -161,13 +169,22 @@ import.egvs(file.names, predictor.names)
 # standardization
 stdz.maps(predictor.names, predictor.maps)
 
+# setting the mask
+mask.file <- paste(system.file(package = "ENiRG"),
+                    "/ext/", "mask.asc", sep="")
+import.egvs(mask.file, "mask")
+
 # performing the Ecologigal Niche Factor Analysis (ENFA)
 enirg(presences.table = lina, qtegv.maps = predictor.maps,
-      species.name = "African", nf = 1, scannf = FALSE,
-      method = "normal") -> apis.enfa
+      species.name = "African", nf = 3,
+      scannf = FALSE, load.maps = TRUE
+      map.center = "mask", method = "normal") -> apis.enirg
 
-enirg.plot(apis.enirg, method = "simplified")
+summary(apis.enirg)
 
+require(raster)
+plot(apis.enirg$African_li_Mar)
+plot(apis.enirg$African_li_Spec1)
 }
 }
 

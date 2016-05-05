@@ -9,13 +9,13 @@ List with values returned from \code{\link{boyce}}.
 }
 
 \description{
-\code{cbi.results} is a list which stores the output of the continuous Boyce classification performed with \code{\link{boyce}}.
+\code{cbi.results} is a list which stores output of the continuous Boyce classification performed with \code{\link{boyce}}.
 }
 
 \usage{data(cbi.results)}
 
 \details{
-The source dataset refers to the classification of the niche analysis performed on \code{\link{apis.enirg}} data.
+Source dataset refers to classification of the niche analysis performed on \code{\link{apis.enirg}} data.
 }
 
 \references{
@@ -34,18 +34,21 @@ data(apis.hsm)
 apis.predictions <- apis.hsm$predictions[, 2]
 
 # vector of predictions for the entire predicted map:
-apis.predictions.map <- as.vector(na.exclude(apis.hsm$African_hsm@data@values))
+apis.predictions.map <- as.vector(na.exclude(apis.hsm$African_predicted_hsm@data@values))
 
 # Try with intervals:
-# unsuitable = 0.25
-# marginal = 0.69
-# unsuitable = 0.81
+# unsuitable = 0.65
+# marginal = 0.84
+# suitable = 0.96
+# Note that this species has an optimal distribution
+# in the study area, resulting in a wide unsuitable
+# interval and narrow suitable ones.
 
 boyce(prediction = apis.predictions,
       prediction.map = apis.predictions.map,
-      categories = c(0, 0.25, 0.69, 0.81, 1),
+      categories = c(0, 0.65, 0.84, 0.96, 1),
       cv.sets = 10, type = "none")
-
+      
 data(cbi.results)
 cbi.results
 }

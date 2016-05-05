@@ -1,29 +1,48 @@
 enirg.plot <-
 function(enirg.results, mar.col = "grey", spe.col = "black", method = "extended", 
-    plot.egvs = TRUE) {
+    plot.egvs = TRUE, asp = FALSE, title = NULL) {
     if (class(enirg.results) != "enirg") 
         stop("The function plot.enirg needs an object of class 'enirg'!")
     if (method == "extended") {
         wrapping <- function(tmp) as.numeric(strsplit(tmp, " ")[[1]])
-        x <- execGRASS("r.stats", input = "li_Mar", flags = c("1"), intern = TRUE, 
+        x <- execGRASS("r.stats", input = paste(enirg.results$species, "_li_Mar", sep = ""), flags = c("1"), intern = TRUE, 
             legacyExec = TRUE)
         x <- as.numeric(x[which(x != "*")])
-        y <- execGRASS("r.stats", input = "li_Spec1", flags = c("1"), intern = TRUE, 
+        y <- execGRASS("r.stats", input = paste(enirg.results$species, "_li_Spec1", sep = ""), flags = c("1"), intern = TRUE, 
             legacyExec = TRUE)
         y <- as.numeric(y[which(y != "*")])
-        plot(x, y, col = mar.col, pch = 19, xlab = "Marginality", ylab = "Specialization 1", 
-            xlim = c(min(x) + (min(x)/4), max(x) + (max(x)/4)), ylim = c(min(y) + 
-                (min(y)/4), max(y) + (max(y)/4)))
+        range.y <- c(min(y) - abs(min(y)/4), max(y) + abs(max(y)/4))
+        range.x <- c(min(x) - abs(min(x)/4), max(x) + abs(max(x)/4))
+        if(asp) {
+            range.y <- c(min(c(range.y, range.x)), max(c(range.y, range.x)))
+            range.x <- range.y
+        }
+        plot(0, 0, col = mar.col, pch = 19, xlab = "Marginality", ylab = "Specialization 1", 
+            type = "n", xlim = range.x, ylim = range.y, main = title)
+        hpts <- chull(x, y)
+        hpts <- c(hpts, hpts[1])
+        polygon(x[hpts], y[hpts], col = mar.col, border = mar.col)
     }
     if (method == "simplified") {
-        statistic <- system("r.describe -r -n li_Mar", intern = T)
-        mar.range <- as.numeric(strsplit(statistic, " thru ")[[1]])
-        statistic <- system("r.describe -r -n li_Spec1", intern = T)
-        spec.range <- as.numeric(strsplit(statistic, " thru ")[[1]])
-        plot(mar.range, spec.range, xlab = "Marginality", ylab = "Specialization 1", 
-            type = "n", xlim = c(min(mar.range) + (min(mar.range)/4), max(mar.range) + 
-                (max(mar.range)/4)), ylim = c(min(spec.range) + (min(spec.range)/4), 
-                max(spec.range) + (max(spec.range)/4)))
+        give.stat <- function(map, stat) {
+            result <- execGRASS("r.univar", map = map, flags = "g", intern = TRUE)
+            result <- agrep(result, pattern = stat, max.distance = list(all = 0), 
+                value = T)
+            result <- as.numeric(strsplit(result, "=")[[1]][2])
+            return(result)
+        }
+        mar.range <- c(give.stat(paste(enirg.results$species, "_li_Mar", sep = ""), "min"),
+                       give.stat(paste(enirg.results$species, "_li_Mar", sep = ""), "max"))
+        spec.range <- c(give.stat(paste(enirg.results$species, "_li_Spec1", sep = ""), "min"),
+                        give.stat(paste(enirg.results$species, "_li_Spec1", sep = ""), "max"))
+        range.x <- c(min(mar.range) - abs(min(mar.range)/4), max(mar.range) + abs(max(mar.range)/4))
+        range.y <- c(min(spec.range) - abs(min(spec.range)/4), max(spec.range) + abs(max(spec.range)/4))
+        if(asp) {
+            range.y <- c(min(c(range.y, range.x)), max(c(range.y, range.x)))
+            range.x <- range.y
+        }
+        plot(0, 0, xlab = "Marginality", ylab = "Specialization 1", 
+            type = "n", xlim = range.x, ylim = range.y, main = title)
         polygon(c(0, mar.range[1], 0, mar.range[2]), c(spec.range[1], 0, spec.range[2], 
             0), col = mar.col)
     }

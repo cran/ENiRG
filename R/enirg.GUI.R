@@ -15,13 +15,14 @@ function() {
     AnalysisM <- tkmenu(topMenu, tearoff = FALSE)
     ViewM <- tkmenu(topMenu, tearoff = FALSE)
     AboutM <- tkmenu(topMenu, tearoff = FALSE)
-    Newsession<- function(gisBase, override=TRUE) {
-    initGRASS(gisBase = gisBase, home = tempdir(), override = override)
+    Newsession<- function(gisBase, new) {
+      initGRASS(gisBase = gisBase, home = tempdir(), override = as.logical(new))
     }
     tkadd(DataM, "command", label = "New GRASS session ...", command = function() guiv(Newsession, 
-        exec = "Execute", argText = c(gisBase = "Path to GRASS binaries and libraries:", 
-            override = "override GRASS session (TRUE or FALSE):"), 
-        helpsFunc = "initGRASS"))
+          exec = "Execute",
+          argText = c(gisBase = "Path to GRASS binaries and libraries:", 
+            new = "override GRASS session (TRUE or FALSE):"), 
+          helpsFunc = "initGRASS"))
     tkadd(DataM, "cascade", label = "Import from ...", menu = ImportS)
     import.text.gui <- function(filename, long.col, lat.col, presence.col, output)
       {
@@ -50,8 +51,8 @@ function() {
           argList=list(long.col=NULL, lat.col=NULL, presence.col=NULL),
           callback=importtxtCallback,
           argText=c(filename="Chose text file:",
-          long.col="Name of the column with longitude:",
-          lat.col="Name of the column with latitude:",
+          long.col="Name of the column with longitude/x:",
+          lat.col="Name of the column with latitude/y:",
           presence.col="Name of column with presence/abundance:",
           output="Output name")))
     import.excel.gui <- function(filename, long.col, lat.col, presence.col, output)
@@ -81,22 +82,22 @@ function() {
           argList=list(long.col=NULL, lat.col=NULL, presence.col=NULL),
           callback=importxlsCallback,
           argText=c(filename="Chose excel file:",
-          long.col="Name of the column with longitude:",
-          lat.col="Name of the column with latitude:",
+          long.col="Name of the column with longitude/x:",
+          lat.col="Name of the column with latitude/y:",
           presence.col="Name of column with presence/abundance:",
           output="Output name")))
     tkadd(DataM, "command", label = "Import egvs", command = function() guiv(import.egvs, 
-        exec = "Execute", argFilename = list(filenames = NULL), argText = c(filenames = "Chose your raster file (check GDAL library for supported formats):", 
-            output.names = "Output names for imported maps separated by a comma:"), 
+        exec = "Execute", argFilename = list(filenames = NULL),
+        argText = c(filenames = "Chose your raster file (check GDAL library for supported formats):", 
+        output.names = "Output names for imported maps separated by a comma:"), 
         helpsFunc = "import.egvs"))
     tkadd(DataM, "command", label = "Map's list", command = function() gui(list.maps, 
-        exec = "Get", argText = c(type = "Type of spatial data ('rast' or 'vect'):", 
-            prefix = "Filtering pattern (regular expressions):"), argOption = list(type = c("rast", 
-            "vect")), helpsFunc = "list.maps"))
+        exec = "Get", argText = c(prefix = "Filtering pattern (regular expressions):")
+        , helpsFunc = "list.maps"))
     load.grass <- function() {
         grassenv <- tktoplevel()
         tktitle(grassenv) <- "Load GRASS mapset info"
-        available.maps <- execGRASS("g.mlist", type = "rast", intern = TRUE)
+        available.maps <- execGRASS("g.list", type = "raster", intern = TRUE)
         tl <- tklistbox(grassenv, height = length(available.maps), selectmode = "single", 
             background = "white")
         tkgrid(tklabel(grassenv, text = "Choose a map from the list:"))
@@ -108,7 +109,7 @@ function() {
             mapChoice <- available.maps[as.numeric(tkcurselection(tl)) + 1]
             tkdestroy(grassenv)
             metadata <- map.info(mapChoice)
-            msg <- hpaste(attr(metadata, "resOut"), collapse = "\n", maxHead = "Inf")
+            msg <- paste(attr(metadata, "resOut"), collapse = "\n")
             metadataW <- tktoplevel(width = 700, height = 300)
             tktitle(metadataW) <- "Metadata"
             tkgrid(tklabel(metadataW, text = msg, font = tkfont.create(family = "courier", 
@@ -124,7 +125,7 @@ function() {
     stdz.maps.gui <- function() {
         grassenv <- tktoplevel()
         tktitle(grassenv) <- "Load GRASS mapset info"
-        available.maps <- execGRASS("g.mlist", type = "rast", intern = TRUE)
+        available.maps <- execGRASS("g.list", type = "raster", intern = TRUE)
         tl <- tklistbox(grassenv, height = length(available.maps), selectmode = "multiple", 
             background = "white")
         tkgrid(tklabel(grassenv, text = "Choose map/s from the list:"))
@@ -199,7 +200,7 @@ function() {
         qtmap <- tktoplevel()
         tkwm.title(qtmap, "Choose:")
         done.map <- tclVar(0)
-        available.maps <- list.maps("rast")$rast
+        available.maps <- execGRASS("g.list", type = "raster", intern = TRUE)
         vnc.map <- NULL
         numi.map <- 1
         tlb.map <- tklistbox(qtmap, selectmode = "multiple")
@@ -238,7 +239,7 @@ function() {
         qlmap <- tktoplevel()
         tkwm.title(qlmap, "Choose:")
         done.ql.map <- tclVar(0)
-        available.maps <- list.maps("rast")$rast
+        available.maps <- execGRASS("g.list", type = "raster", intern = TRUE)
         vnc.ql.map <- NULL
         numi.ql.map <- 1
         tlb.ql.map <- tklistbox(qlmap, selectmode = "multiple")
@@ -280,9 +281,9 @@ function() {
             " <<- enirg(presences.table = ", data1,
             ", qtegv.maps = data2",
             ", qlegv.maps = data3",
-            ", col.w = NULL, scannf = TRUE, load.maps = TRUE, species.name = data4, method = 'normal')",
+            ", col.w = NULL, scannf = TRUE, load.maps = TRUE",
+            ", species.name = data4, method = 'normal')",
             sep="")
-        print(exp.eval) 
         eval(parse(text = exp.eval))
     }
     enirg.gui <- function() {
@@ -300,13 +301,13 @@ function() {
         tkgrid(IFrame)
         OFrame <- tkframe(tt, relief = "groove", borderwidth = 2)
         tkgrid(tklabel(OFrame, text = "- output -", foreground = "blue"), columnspan = 5)
+        outvar <- tclVar()
+        out.entry <- tkentry(OFrame, textvariable = outvar)
+        tkgrid(tklabel(OFrame, text = "Name for enirg output: "), out.entry, sticky = "w")
         speciesvar <- tclVar()
         species.entry <- tkentry(OFrame, textvariable = speciesvar)
         tkgrid(tklabel(OFrame, text = "Species name for map names: "), species.entry, 
             sticky = "w")
-        outvar <- tclVar()
-        out.entry <- tkentry(OFrame, textvariable = outvar)
-        tkgrid(tklabel(OFrame, text = "Name for enirg output: "), out.entry, sticky = "w")
         tkgrid(OFrame)
         QTFrame <- tkframe(tt, relief = "groove", borderwidth = 2)
         tkgrid(tklabel(QTFrame, text = "Quantitative map/s", foreground = "blue"), 
@@ -381,14 +382,14 @@ function() {
             return()
     }
     tkadd(AnalysisM, "command", label = "enirg", command = function() enirg.gui())
-    enirg.predict.out <- function(data1, data2, data3, outfile) {
+    enirg.predict.out <- function(data1, data2, data3, data4, outfile) {
         exp.eval <- paste(outfile,
             " <<- enirg.predict(enirg.results = ", data1,
             ", qtegv.maps = data2",
             ", qlegv.maps = data3",
+            ", prediction.name = data4",
             ", method = 'normal', load.map = TRUE)",
             sep="")
-        print(exp.eval) 
         eval(parse(text = exp.eval))
     }
     enirg.predict.gui <- function() {
@@ -407,6 +408,10 @@ function() {
         outvar <- tclVar()
         out.entry <- tkentry(OFrame, textvariable = outvar)
         tkgrid(tklabel(OFrame, text = "Name for prediction output: "), out.entry, 
+            sticky = "w")
+        outnamevar <- tclVar()
+        outname.entry <- tkentry(OFrame, textvariable = outnamevar)
+        tkgrid(tklabel(OFrame, text = "Name for prediction maps: "), outname.entry, 
             sticky = "w")
         tkgrid(OFrame)
         QTFrame <- tkframe(tt, relief = "groove", borderwidth = 2)
@@ -445,15 +450,21 @@ function() {
                 vect3 <- strsplit(tclvalue(qlvar), " ")[[1]]
             }
             else vect3 <- NULL
-            if (tclvalue(outvar) == "") 
-                outname <- NULL
-            else outname <- tclvalue(outvar)
+            if (tclvalue(outvar) != "") {
+                outname <- tclvalue(outvar)
+            }
+            else outname <- "enirg.pred"
+            if (tclvalue(outnamevar) == "") {
+                outnamemap <- NULL
+            }
+            else outnamemap <- tclvalue(outnamevar)
             substitute(enirg.predict.out(data1 = vect1, data2 = vect2, data3 = vect3, 
-                outfile = outname))
+                data4 = outnamemap, outfile = outname))
         }
         "reset" <- function() {
             tclvalue(enirgvar) <- ""
             tclvalue(outvar) <- ""
+            tclvalue(outnamevar) <- ""
             tclvalue(qlvar) <- ""
             tkconfigure(ql.label, text = "")
             tclvalue(qtvar) <- ""
@@ -475,13 +486,10 @@ function() {
             return()
     }
     tkadd(AnalysisM, "command", label = "enirg prediction", command = function() enirg.predict.gui())
-    choose.hsm <- function(df.entry, dfnr.label) {
+    choose.hsm <- function(hsm.entry) {
         tf <- tktoplevel()
         tkwm.title(tf, "Choose:")
         done <- tclVar(0)
-        vnr <- NULL
-        vnc <- NULL
-        numi <- 1
         tlb <- tklistbox(tf)
         scr <- tkscrollbar(tf, repeatinterval = 5, command = function(...) tkyview(tlb, 
             ...))
@@ -498,7 +506,6 @@ function() {
             xobj <- get(x1, envir = globalenv())
             if (class(xobj) == "hsm") {
                 tkinsert(tlb, "end", x1)
-                cbind(length(xobj))
             }
         }
         v <- unlist(lapply(obj, flb))
@@ -510,8 +517,6 @@ function() {
         tkbind(tf, "<KeyPress-Return>", function() tclvalue(done) <- 1)
         tkbind(tf, "<KeyPress-Escape>", function() tkdestroy(tf))
         tkwait.variable(done)
-        if (tclvalue(done) == "2") 
-            return(0)
         numc <- tclvalue(tkcurselection(tlb))
         numi <- as.integer(numc) + 1
         if (numc == "") {
@@ -519,30 +524,26 @@ function() {
             return(0)
         }
         choix <- tclvalue(tkget(tlb, numc))
-        tkdelete(df.entry, 0, "end")
-        tkinsert(df.entry, "end", choix)
-        tkconfigure(dfnr.label, text = as.character(vnr[numi]))
+        tkdelete(hsm.entry, 0, "end")
+        tkinsert(hsm.entry, "end", choix)
         tkdestroy(tf)
     }
     pre.boyce <- function(results, outcat) {
         dataobs <- results[["predictions"]]
         dataobs <- dataobs$predicted
-        datavect <- results[[1]]@data@values
+        datavect <- results[[4]]@data@values
         datavect <- datavect[which(datavect > 0)]
         boyce(prediction = dataobs, prediction.map = datavect, outcat = outcat)
     }
     boyce.GUI <- function() {
         tt <- tktoplevel()
         tkwm.title(tt, "Classification settings")
-        dfvar <- tclVar()
+        hsmvar <- tclVar()
         IOFrame <- tkframe(tt, relief = "groove", borderwidth = 2)
         tkgrid(tklabel(IOFrame, text = "- Input -", foreground = "blue"), columnspan = 5)
-        df.entry <- tkentry(IOFrame, textvariable = dfvar)
-        dfnr.label <- tklabel(IOFrame, width = 5)
-        choosevect.but <- tkbutton(IOFrame, text = "Set", command = function() choose.hsm(df.entry, 
-            dfnr.label))
-        tkgrid(tklabel(IOFrame, text = "Prediction object: "), df.entry, 
-            choosevect.but, dfnr.label, sticky = "w")
+        hsm.entry <- tkentry(IOFrame, textvariable = hsmvar)
+        choosehsm.but <- tkbutton(IOFrame, text = "Set", command = function() choose.hsm(hsm.entry))
+        tkgrid(tklabel(IOFrame, text = "Prediction object: "), hsm.entry, choosehsm.but, sticky = "w")
         outvar <- tclVar()
         cat.entry <- tkentry(IOFrame, textvariable = outvar)
         tkgrid(tklabel(IOFrame, text = "Name to store classification info: "), cat.entry, 
@@ -553,13 +554,12 @@ function() {
         numi = 1
         done <- tclVar(0)
         "build" <- function() {
-            vect1 <- parse(text = tclvalue(dfvar))[[1]]
+            vect1 <- parse(text = tclvalue(hsmvar))[[1]]
             outpn <- tclvalue(outvar)
             substitute(pre.boyce(results = vect1, outcat = outpn))
         }
         "reset" <- function() {
-            tclvalue(dfvar) <- ""
-            tkconfigure(dfnr.label, text = "")
+            tclvalue(hsmvar) <- ""
             tclvalue(outvar) <- ""
         }
         "execcomp" <- function() {
@@ -579,6 +579,45 @@ function() {
             return()
     }
     tkadd(AnalysisM, "command", label = "Boyce classification", command = function() boyce.GUI())
+    choose.map <- function(map.entry, map.label) {
+        qtmap <- tktoplevel()
+        tkwm.title(qtmap, "Choose:")
+        done.map <- tclVar(0)
+        available.maps <- execGRASS("g.list", type = "raster", intern = TRUE)
+        vnc.map <- NULL
+        numi.map <- 1
+        tlb.map <- tklistbox(qtmap, selectmode = "multiple")
+        scr.map <- tkscrollbar(qtmap, repeatinterval = 5, command = function(...) tkyview(tlb.map, 
+            ...))
+        tkconfigure(tlb.map, yscrollcommand = function(...) tkset(scr.map, ...))
+        frame1.qt <- tkframe(qtmap, relief = "groove", borderwidth = 2)
+        cancel.but <- tkbutton(frame1.qt, text = "Dismiss", command = function() tkdestroy(qtmap))
+        submit.but <- tkbutton(frame1.qt, text = "Choose", default = "active", command = function() tclvalue(done.map) <- 1)
+        tkpack(cancel.but, submit.but, side = "left")
+        tkpack(frame1.qt, side = "bottom")
+        tkpack(tlb.map, side = "left", fill = "both", expand = TRUE)
+        tkpack(scr.map, side = "right", fill = "y")
+        for (i in (1:length(available.maps))) {
+            tkinsert(tlb.map, "end", available.maps[i])
+        }
+        tkbind(tlb.map, "<Double-ButtonPress-1>", function() tclvalue(done.map) <- 1)
+        tkbind(qtmap, "<Destroy>", function() tclvalue(done.map) <- 2)
+        tkbind(qtmap, "<KeyPress-Return>", function() tclvalue(done.map) <- 1)
+        tkbind(qtmap, "<KeyPress-Escape>", function() tkdestroy(qtmap))
+        tkwait.variable(done.map)
+        if (tclvalue(done.map) == "2") 
+            return(0)
+        numc.map <- tclvalue(tkcurselection(tlb.map))
+        if (numc.map == "") {
+            tkdestroy(qtmap)
+            return(0)
+        }
+        choix.maps <- available.maps[as.numeric(strsplit(numc.map, " ")[[1]]) + 1]
+        tkdelete(map.entry, 0, "end")
+        tkinsert(map.entry, "end", choix.maps)
+        tkconfigure(map.label, text = length(choix.maps))
+        tkdestroy(qtmap)
+    }
     choose.cbi <- function(cbi.entry) {
         tf <- tktoplevel()
         tkwm.title(tf, "Choose:")
@@ -623,30 +662,30 @@ function() {
     }
     classify.map.out <- function(data1, data2, data3, outfile) {
         exp.eval <- paste(outfile,
-            " <<- classify.map(enirg.results = data1",
+            " <<- classify.map(map = data1",
             ", suit.classes = data2",
             ", output.name = data3",
             ", load.map = TRUE)",
             sep="")
-        print(exp.eval) 
         eval(parse(text = exp.eval))
     }
     classify.map.gui <- function() {
         tt <- tktoplevel()
-        tkwm.title(tt, "Reclassification settings")
+        tkwm.title(tt, "Classification settings")
         IFrame <- tkframe(tt, relief = "groove", borderwidth = 2)
         tkgrid(tklabel(IFrame, text = "- Input -", foreground = "blue"), columnspan = 5)
-        enirgvar <- tclVar()
-        enirg.entry <- tkentry(IFrame, textvariable = enirgvar)
-        choose.enirg.but <- tkbutton(IFrame, text = "Set", command = function() choose.enirg(enirg.entry))
-        tkgrid(tklabel(IFrame, text = "enirg object: "), enirg.entry, choose.enirg.but, 
+        mapvar <- tclVar()
+        map.label <- tklabel(IFrame, width = 2)
+        map.entry <- tkentry(IFrame, textvariable = mapvar)
+        choose.map.but <- tkbutton(IFrame, text = "Set", command = function() choose.map(map.entry, map.label))
+        tkgrid(tklabel(IFrame, text = "Suitability map: "), map.entry, choose.map.but, 
             sticky = "w")
         tkgrid(IFrame)
         OFrame <- tkframe(tt, relief = "groove", borderwidth = 2)
         tkgrid(tklabel(OFrame, text = "- Output -", foreground = "blue"), columnspan = 5)
         outvar <- tclVar()
         out.entry <- tkentry(OFrame, textvariable = outvar)
-        tkgrid(tklabel(OFrame, text = "Name for classification map: "), out.entry, 
+        tkgrid(tklabel(OFrame, text = "Name for classified map: "), out.entry, 
             sticky = "w")
         outfilevar <- tclVar()
         outfile.entry <- tkentry(OFrame, textvariable = outfilevar)
@@ -666,7 +705,7 @@ function() {
         numi = 1
         done <- tclVar(0)
         "build" <- function() {
-            vect1 <- parse(text = tclvalue(enirgvar))[[1]]
+            vect1 <- tclvalue(mapvar)
             vect2 <- parse(text = tclvalue(cbivar))[[1]]
             if (tclvalue(outvar) != "") 
                 vect3 <- tclvalue(outvar)
@@ -676,7 +715,7 @@ function() {
                 outfile = outname))
         }
         "reset" <- function() {
-            tclvalue(enirgvar) <- ""
+            tclvalue(mapvar) <- ""
             tclvalue(outvar) <- ""
             tclvalue(outfilevar) <- ""
             tclvalue(cbivar) <- ""
@@ -792,53 +831,6 @@ function() {
             return()
     }
     tkadd(ViewM, "command", label = "Plot enirg", command = function() enirg.plot.gui())
-    plot.enirg.maps <- function(object.enirg) {
-        number <- (object.enirg$nf +1) %/% 2
-        swi <- (object.enirg$nf +1) %% 2
-        par(mfrow=c(number + swi, 2))
-        for(i in c("li_Mar", paste("li_Spec", 1:object.enirg$nf, sep=""))) {
-            plot(object.enirg[[i]], main = paste(object.enirg[["species"]], i, sep=" "))
-            contour(object.enirg[[i]], add=T)
-        }
-    }
-    plot.enirg.maps.gui <- function() {
-        tt <- tktoplevel()
-        tkwm.title(tt, "plot settings")
-        IOFrame <- tkframe(tt, relief = "groove", borderwidth = 2)
-        tkgrid(tklabel(IOFrame, text = "- Input -", foreground = "blue"), columnspan = 5)
-        enirgvar <- tclVar()
-        enirg.entry <- tkentry(IOFrame, textvariable = enirgvar)
-        choose.enirg.but <- tkbutton(IOFrame, text = "Set", command = function() choose.enirg(enirg.entry))
-        tkgrid(tklabel(IOFrame, text = "enirg object: "), enirg.entry, choose.enirg.but, 
-            sticky = "w")
-        tkgrid(IOFrame)
-        vnr = NULL
-        vnc = NULL
-        numi = 1
-        done <- tclVar(0)
-        "build" <- function() {
-            vect1 <- parse(text = tclvalue(enirgvar))[[1]]
-            substitute(plot.enirg.maps(object.enirg = vect1))
-        }
-        "reset" <- function() {
-            tclvalue(enirgvar) <- ""
-        }
-        "execcomp" <- function() {
-            cmd <- build()
-            eval.parent(cmd)
-        }
-        RCSFrame <- tkframe(tt, relief = "groove")
-        cancel.but <- tkbutton(RCSFrame, text = "Dismiss", command = function() tkdestroy(tt))
-        submit.but <- tkbutton(RCSFrame, text = "  Plot  ", default = "active", command = function() execcomp())
-        tkgrid(cancel.but, submit.but, ipadx = 20)
-        tkgrid(RCSFrame)
-        tkbind(tt, "<Destroy>", function() tclvalue(done) <- 2)
-        tkbind(tt, "<KeyPress-Return>", function() execcomp())
-        tkbind(tt, "<KeyPress-Escape>", function() tkdestroy(tt))
-        if (tclvalue(done) == "2") 
-            return()
-    }
-    tkadd(ViewM, "command", label = "Plot enirg maps", command = function() plot.enirg.maps.gui())
     choose.hsm.map <- function(hsm.entry) {
         tf <- tktoplevel()
         tkwm.title(tf, "Choose:")
@@ -932,6 +924,48 @@ function() {
             return()
     }
     tkadd(ViewM, "command", label = "Plot HSM map", command = function() plot.hsm.map.gui())
+    plot.map<- function(mapname) {
+        eval(parse(text = "plot(raster(readRAST(mapname)), main = mapname)"))
+    }
+    plot.map.gui <- function() {
+        tt <- tktoplevel()
+        tkwm.title(tt, "plot settings")
+        IFrame <- tkframe(tt, relief = "groove", borderwidth = 2)
+        tkgrid(tklabel(IFrame, text = "- Input -", foreground = "blue"), columnspan = 5)
+        mapname <- tclVar()
+        map.entry <- tkentry(IFrame, textvariable = mapname)
+        map.label <- tklabel(IFrame, width = 2)
+        choose.map.but <- tkbutton(IFrame, text = "Set", command = function() choose.map(map.entry, map.label))
+        tkgrid(tklabel(IFrame, text = "Choose map: "), map.entry, choose.map.but, 
+            sticky = "w")
+        tkgrid(IFrame)
+        vnr = NULL
+        vnc = NULL
+        numi = 1
+        done <- tclVar(0)
+        "build" <- function() {
+            vect1 <- tclvalue(mapname)
+            substitute(plot.map(vect1))
+        }
+        "reset" <- function() {
+            tclvalue(mapname) <- ""
+        }
+        "execcomp" <- function() {
+            cmd <- build()
+            eval.parent(cmd)
+        }
+        RCSFrame <- tkframe(tt, relief = "groove")
+        cancel.but <- tkbutton(RCSFrame, text = "Dismiss", command = function() tkdestroy(tt))
+        submit.but <- tkbutton(RCSFrame, text = "  Plot  ", default = "active", command = function() execcomp())
+        tkgrid(cancel.but, submit.but, ipadx = 20)
+        tkgrid(RCSFrame)
+        tkbind(tt, "<Destroy>", function() tclvalue(done) <- 2)
+        tkbind(tt, "<KeyPress-Return>", function() execcomp())
+        tkbind(tt, "<KeyPress-Escape>", function() tkdestroy(tt))
+        if (tclvalue(done) == "2") 
+            return()
+    }
+    tkadd(ViewM, "command", label = "Plot map", command = function() plot.map.gui())
     save.graphic.gui <- function() {
         tf <- tktoplevel()
         tkwm.title(tf, "Save graphic as ...")
@@ -1013,7 +1047,7 @@ function() {
         tcl("image","create","photo", "imageID", file=file.about)
         l <- ttklabel(AboutW, image="imageID", compound="image")
         tkpack(l)
-        msg <- "Ecological Niche in R and GRASS (ENiRG)\nVersion: 0.1\nDate: 2014-05-21\n\nThis package was developed by:\n\nF. Canovas *\nC. Magliozzi *\nF. Mestre **\nJ.A. Palazon-Ferrando ***\nM. Gonzalez-Wanguemert *\n\n* Centro de Ciencias do Mar do Algarve (CCMAR, Portugal)\n** Centro de Investigacao em Biodiversidade e Recursos Geneticos,\nUniv. Evora (CIBIO/InBio-Evora, Portugal)\n*** Universidad de Murcia (Spain)\n\nMaintainer: F. Canovas <fcgarcia@ualg.pt>"
+        msg <- "Ecological Niche in R and GRASS (ENiRG)\nVersion: 1.0-1\nDate: 2016-05-03\n\nThis package was developed by:\n\nF. Canovas *\nC. Magliozzi *\nF. Mestre **\nJ.A. Palazon-Ferrando ***\nM. Gonzalez-Wanguemert *\n\n* Centro de Ciencias do Mar do Algarve (CCMAR, Portugal)\n** Centro de Investigacao em Biodiversidade e Recursos Geneticos,\nUniv. Evora (CIBIO/InBio-Evora, Portugal)\n*** Universidad de Murcia (Spain)\n\nMaintainer: F. Canovas <fcgarcia@ualg.pt>"
         tkpack(tklabel(AboutW, text = msg))
         Dismiss.but <- tkbutton(AboutW, text = "Dismiss", command = function() tkdestroy(AboutW))
         tkpack(Dismiss.but)
@@ -1026,7 +1060,7 @@ function() {
         tcl("image","create","photo", "imageRef", file=file.references)
         ref <- ttklabel(ReferencesW, image="imageRef", compound="image")
         tkpack(ref)
-        references <- "\n\nBasille, M., Calenge, C., Marboutin, E., Andersen, R. and Gaillard, J.M. (2008) Assessing habitat\nselection using multivariate statistics: some refinements of the ecological-niche factor\nanalysis. Ecological Modelling, 211, 233-240.\n\nBoyce, M.S.,Vernier, P.R.,Nielsen,S.E.,Schmiegelow, F.K.A. (2002) Evaluating resource selection\nfunctions Ecological Modelling 157, 281-300.\n\nHirzel, A.H., Hausser, J., Chessel, D. and Perrin, N. (2002) Ecological-niche factor analysis: How\nto compute habitat-suitability maps without absence data? Ecology, 83, 2027-2036.\n\nHutchinson, G.E. (1957) Concluding Remarks. Cold Spring Harbor Symposium on Quantitative\nBiology, 22: 415-427. master's thesis.\n\n"
+        references <- "\n\nBasille, M., Calenge, C., Marboutin, E., Andersen, R. and Gaillard, J.M. (2008) Assessing habitat\nselection using multivariate statistics: some refinements of the ecological-niche factor\nanalysis. Ecological Modelling, 211, 233-240.\n\nBoyce, M.S.,Vernier, P.R.,Nielsen,S.E.,Schmiegelow, F.K.A. (2002) Evaluating resource selection\nfunctions Ecological Modelling 157, 281-300.\n\nCanovas, F., Magliozzi, C., Palazon-Ferrando, J.A., Mestre, F. and Gonzalez-Wanguemert, M. (2015)\nENiRG: R-GRASS interface to efficiently characterize the ecological niche of species and predict\nhabitat suitability. Ecography. DOI: 10.1111/ecog.01426.\n\nHirzel, A.H., Hausser, J., Chessel, D. and Perrin, N. (2002) Ecological-niche factor analysis: How\nto compute habitat-suitability maps without absence data? Ecology, 83, 2027-2036.\n\nHutchinson, G.E. (1957) Concluding Remarks. Cold Spring Harbor Symposium on Quantitative\nBiology, 22: 415-427. master's thesis.\n\n"
         tkpack(tklabel(ReferencesW, text = references))
         Dismiss.but <- tkbutton(ReferencesW, text = "Dismiss", command = function() tkdestroy(ReferencesW))
         tkpack(Dismiss.but)

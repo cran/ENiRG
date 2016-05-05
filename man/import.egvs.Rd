@@ -15,16 +15,16 @@ import.egvs(filenames, output.names)
 
 \arguments{
   \item{filenames}{
-character string. The name of the raster file to be imported.
+character string. Path to raster file to be imported.
 }
 
   \item{output.names}{
-character string. The name of the output raster map that will be created.
+character string. Name of output raster map that will be created in GRASS environment.
 }
 }
 
 \details{
-Datum and projection of the source dataset must match the projection of the current location, otherwise a report error message can be generated.
+Datum and projection of source dataset must match projection of current GRASS location, otherwise a report error message can be generated.
 }
 
 \value{
@@ -40,16 +40,16 @@ Chiara  Magliozzi \email{chiara.magliozzi@libero.it}, Fernando Canovas \email{fc
 }
 
 \seealso{
-\code{\link{list.maps}}, \code{\link[spgrass6]{initGRASS}}
+\code{\link{list.maps}}, \code{\link[rgrass7]{initGRASS}}
 }
 
 \examples{
 \dontrun{
 # starting GRASS session
-initGRASS("/usr/bin/grass-6.4.0", home=tempdir())
+initGRASS("/usr/bin/grass-7.0.0", home=tempdir())
 initGRASS("C:/GRASS", home=tempdir())
 
-## Path of the file to be imported
+## Path to file
 file1 <- paste(system.file(package = "ENiRG"), "/ext/tann.asc", sep="")
 
 import.egvs(file1, "tann")
