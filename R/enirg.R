@@ -220,7 +220,7 @@ function(presences.table, qtegv.maps, qlegv.maps = NULL, col.w = NULL, scannf = 
     marginalities <- matrix(co[, 1], ncol = 1)
     rownames(marginalities) <- egv.maps
     colnames(marginalities) <- "Marginality"
-    total_marginality <- sqrt(sum((marginalities/sqrt(col.w))^2))/1.96
+    total_marginality <- sqrt(m)/1.96
     rownames(co) <- egv.maps
     colnames(co) <- c("Mar", paste("Spec", 1:nf, sep = ""))
     specializations <- matrix(co[, 2:(nf + 1)], ncol = nf)

@@ -26,8 +26,8 @@ Canovas, F., De la Rua, P., Serrano, J. and Galian, J. (2008). Geographical patt
 Canovas, F., De la Rua, P., Serrano, J. and Galian, J. (2014). Analysing and describing a contact area of two distinct evolutionary units. An ecological perspective. Journal of Insect Conservation, 18(5): 927-937
 
 Canovas, F., Magliozzi, C., Mestre, F., Palazon-Ferrando, J.A. and Gonzalez-Wanguemert,
-M. (2015). ENiRG: R-GRASS interface for efficiently characterizing the ecological niche of
-species and predicting habitat suitability. Ecography. DOI: 10.1111/ecog.01426
+M. (2016). ENiRG: R-GRASS interface for efficiently characterizing the ecological niche of
+species and predicting habitat suitability. Ecography 39: 593-598.
 }
 
 \examples{

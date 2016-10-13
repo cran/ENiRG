@@ -29,7 +29,7 @@ data frame with species presence records in three columns, containing:
   \itemize{
     \item 1 - X coordinate or longitude.  
     \item 2 - Y coordinate or latitude.
-    \item 3 - number of presences of observations.
+    \item 3 - number of presences or observations.
   }
   }
 
@@ -134,6 +134,10 @@ If \code{load.maps} is set to TRUE, then maps of marginality and \emph{nf} numbe
 
 \references{
 Basille, M., Calenge, C., Marboutin, E., Andersen, R. \& Gaillard, J.M. (2008). Assessing habitat selection using multivariate statistics: Some refinements of the ecological-niche factor analysis. Ecological Modelling, 211, 233-240. 
+
+Canovas, F., Magliozzi, C., Mestre, F., Palazon-Ferrando, J.A. and Gonzalez-Wanguemert,
+M. (2016). ENiRG: R-GRASS interface for efficiently characterizing the ecological niche of
+species and predicting habitat suitability. Ecography 39: 593-598.
 
 Hirzel, A.H., Hausser, J., Chessel, D. \& Perrin, N. (2002). Ecological-niche factor analysis: How to compute habitat-suitability maps without absence data? Ecology, 83, 2027-2036.
 }

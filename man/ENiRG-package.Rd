@@ -32,7 +32,7 @@ This package is organised in four main parts:
   \item classification of suitability (\code{\link{boyce}} and \code{\link{classify.map}}).
 }
 
-\emph{ENiRG} is able to perform the analysis into GRASS, by intitiating a session within R (see also function \code{\link{initGRASS}} from \emph{rgrass7}). \emph{ENiRG} provides an easy way to import raster maps through \code{\link{import.egvs}}, containing EGV's distribution in any of the formats supported by GDAL library (\href{http://www.gdal.org}{gdal.org}). It also provides several functions to explore \href{http://grass.osgeo.org/}{GRASS} environment, giving the available list of maps (\code{\link{list.maps}}) and metadata (\code{\link{map.info}}). Before run ENFA analysis, standardization of quantitative EGVs is suggested Hirzel \emph{et al}. (2002). \code{\link{stdz.maps}} allows the process by retrieving its univariate statistics.
+\emph{ENiRG} is able to perform the analysis into GRASS, by intitiating a session within R (see also function \code{\link{initGRASS}} from \emph{rgrass7}). \emph{ENiRG} provides an easy way to import raster maps through \code{\link{import.egvs}}, containing EGV's distribution in any of the formats supported by GDAL library (\href{http://www.gdal.org}{gdal.org}). It also provides several functions to explore \href{http://grass.osgeo.org}{GRASS} environment, giving the available list of maps (\code{\link{list.maps}}) and metadata (\code{\link{map.info}}). Before run ENFA analysis, standardization of quantitative EGVs is suggested Hirzel \emph{et al}. (2002). \code{\link{stdz.maps}} allows the process by retrieving its univariate statistics.
 
 Characterization of the species's niche can be done by using the main function of the package. \code{\link{enirg}} performs ENFA analysis, while projection of the ordination diagram of marginality and specialization (ENFA's principal components), can be computed using \code{\link{enirg.plot}}.
 
@@ -42,7 +42,7 @@ Main functions of the package offer two methods, accordingly to the amount of da
 
 \code{\link{boyce}} function aims to investigate how accurately the map obtained from function \code{\link{enirg.predict}} is predicting modelled species presences (Boyce \emph{et al}., 2002). Intervals estimated manually, allow users to reclassify predicted niche maps, by using \code{\link{classify.map}}, and thus distinguishing unsuitable, marginal, suitable and optimal habitat (Hirzel \emph{et al}., 2006). Evaluation of habitat suitability model accuracy is made by means of n-fold cross-validation (Fielding and Bell, 1997).
 
-User can take advantages of integration with other R libraries (\emph{raster}, \emph{rasterVIS}), portability and interoperability within GRASS (i.e. efficient map storage) and can also communicate with other commonly used GIS software, such as \href{http://www.qgis.org/}{QGIS}.
+User can take advantages of integration with other R libraries (\emph{raster}, \emph{rasterVIS}), portability and interoperability within GRASS (i.e. efficient map storage) and can also communicate with other commonly used GIS software, such as QGIS.
 
 A graphical user interface (GUI) allows better access to functionalities of \emph{ENiRG} package through function \code{link{enirg.GUI}}.
 }
@@ -64,8 +64,8 @@ Hirzel, A.H., Hausser, J., Chessel, D. and Perrin, N. (2002). Ecological-niche f
 Hirzel, A.H., Le Lay, G., Helfer, V., Randin, C., Guisan, A. (2006). Evaluating the ability of the habitat suitability models to predict species presences. Ecological Modelling 199, 142-152.
 
 Canovas, F., Magliozzi, C., Mestre, F., Palazon-Ferrando, J.A. and Gonzalez-Wanguemert,
-M. (2015). ENiRG: R-GRASS interface for efficiently characterizing the ecological niche of
-species and predicting habitat suitability. Ecography. DOI: 10.1111/ecog.01426
+M. (2016). ENiRG: R-GRASS interface for efficiently characterizing the ecological niche of
+species and predicting habitat suitability. Ecography 39: 593-598.
 }
 
 \note{
